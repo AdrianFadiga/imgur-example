@@ -28,7 +28,7 @@ export class PostsController {
     file: Express.Multer.File,
     @Body() { content }: PostDto,
   ) {
-    const newPost = await this.postsService.create(content);
+    const newPost = await this.postsService.create(content, file);
     return newPost;
   }
 }
