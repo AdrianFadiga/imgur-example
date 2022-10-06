@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PostsModel } from './posts.model';
+import { ImgurClient } from 'imgur';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -8,13 +9,34 @@ export class PostsService {
   constructor(private postsModel: PostsModel) {}
 
   async create(content: string, file: Express.Multer.File) {
-    const imageUrl = this.uploadImage(file);
-    const newPost = await this.postsModel.create(content);
+    console.log(file);
+    const imageUrl = await this.uploadImage(file);
+    const newPost = await this.postsModel.create(content, imageUrl);
     return newPost;
   }
 
   async uploadImage(file: Express.Multer.File) {
-    const filePath = path.join(__dirname, '..', `../uploads/${file.filename}`);
-    fs.unlinkSync(filePath);
+    try {
+      const filePath = path.join(
+        __dirname,
+        '..',
+        `../uploads/${file.filename}`,
+      );
+      const imgurClient = new ImgurClient({
+        clientId: 'clientId',
+        clientSecret: 'clientSecret',
+        refreshToken: 'refreshToken',
+      });
+      const response = await imgurClient.upload({
+        image: fs.createReadStream(filePath) as any,
+        type: 'stream',
+      });
+      fs.unlinkSync(filePath);
+      return response.data.link;
+    } catch (err) {
+      throw new BadRequestException();
+    }
   }
 }
+
+// npm install imgur

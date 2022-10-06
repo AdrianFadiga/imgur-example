@@ -19,7 +19,7 @@ export class PostsController {
   async create(
     @UploadedFile(
       new ParseFilePipeBuilder()
-        .addFileTypeValidator({ fileType: /(gif|jpe?g|tiff?|png|bmp|webp)$/i })
+        .addFileTypeValidator({ fileType: /(gif|jpe?g|tiff?|png|bmp)$/i })
         .addMaxSizeValidator({ maxSize: 5000000 })
         .build({
           fileIsRequired: true,
